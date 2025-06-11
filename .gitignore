@@ -1,0 +1,7 @@
+php.ini
+*.env
+vendor/
+.vscode/
+.docker/
+docker.ps1
+.dockerignore

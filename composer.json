@@ -1,0 +1,16 @@
+{
+    "name": "ren/app",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Ren\\App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ren",
+            "email": "sergeysolovyov2016@gmail.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.flex-content {
+    display: flex;
+    flex-direction: column;
+    width: 16em;
+    margin: 1em;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.flex-row * {
+    margin: 5px;
+}
