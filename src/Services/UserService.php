@@ -40,7 +40,7 @@ class UserService
         $prq->bindValue(":password", $password);
 
         if (!$prq->execute()) {
-            throw new ErrorException("User with email = " . $user->email . " dose not register");
+            throw new ErrorException("Query \"" . $prq->queryString . "\" failed");
         }
 
         return $this->getUserByEmail($user->email);
@@ -55,29 +55,39 @@ class UserService
         );
 
         if ($query === false) {
-            throw new ErrorException();
+            throw new ErrorException("Query failed");
         }
 
         return $query->fetchAll();
     }
 
-    public function getUserByEmail(string $email): UserDTO|false
+    private function getUserBy(string $colName, mixed $value): UserDTO|false
     {
-        $prq = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
-        $prq->bindValue(":email", $email);
+        $prq = $this->pdo->prepare("SELECT * FROM users WHERE $colName = :$colName");
+        $prq->bindValue(":$colName", $value);
         $prq->setFetchMode(
             PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE,
             UserDTO::class
         );
 
         if (!$prq->execute()) {
-            throw new ErrorException("User with email = " . $email . " not found");
+            throw new ErrorException("Query \"" . $prq->queryString . "\" failed");
         }
 
         return $prq->fetch();
     }
 
-    public function updateUserBy(string $colName, mixed $value, UserDTO $user): UserDTO
+    public function getUserById(int $id): UserDTO|false
+    {
+        return $this->getUserBy("id", $id);
+    }
+
+    private function getUserByEmail(string $email): UserDTO|false
+    {
+        return $this->getUserBy("email", $email);
+    }
+
+    private function updateUserBy(string $colName, mixed $value, UserDTO $user): UserDTO
     {
         $updates = [];
         $params = [];
@@ -106,60 +116,25 @@ class UserService
             $prq = $this->pdo->prepare("UPDATE users SET " . implode(", ", $updates) . " WHERE $colName = :$byColName");
 
             if (!$prq->execute($params)) {
-                throw new ErrorException("User with $colName = $value not updated");
+                throw new ErrorException("Query \"" . $prq->queryString . "\" failed");
             }
         }
 
         return $user;
     }
 
-    public function updateUserByEmail(string $email, UserDTO $user): UserDTO
+    public function updateUserById(int $id, UserDTO $user): UserDTO
     {
-        return $this->updateUserBy("email", $email, $user);
+        return $this->updateUserBy("id", $id, $user);
     }
 
-    //     public function updateUserByEmail(string $email, UserDTO $user): UserDTO
-    // {
-    //     $updates = [];
-    //     $params = [];
-
-    //     if (isset($user->email)) {
-    //         $updates[] = "email = :email";
-    //         $params[":email"] = $user->email;
-    //     }
-    //     if (isset($user->password) && $user->password !== "") {
-    //         $updates[] = "password = :password";
-    //         $params[":password"] = password_hash($user->password, PASSWORD_BCRYPT);
-    //     }
-    //     if (isset($user->name)) {
-    //         $updates[] = "name = :name";
-    //         $params[":name"] = $user->name !== "" ? $user->name : null;
-    //     }
-    //     if (isset($user->surname)) {
-    //         $updates[] = "surname = :surname";
-    //         $params[":surname"] = $user->surname !== "" ? $user->surname : null;
-    //     }
-
-    //     if (!empty($updates)) {
-    //         $params[":current_email"] = $email;
-
-    //         $prq = $this->pdo->prepare("UPDATE users SET " . implode(", ", $updates) . " WHERE email = :current_email");
-
-    //         if (!$prq->execute($params)) {
-    //             throw new ErrorException("User with email = " . $email . " not updated");
-    //         }
-    //     }
-
-    //     return $user;
-    // }
-
-    public function deleteUserByEmail(string $email): UserDTO
+    public function deleteUserById(int $id): UserDTO
     {
-        $user = $this->getUserByEmail($email);
+        $user = $this->getUserById($id);
 
-        $prq = $this->pdo->prepare("DELETE FROM users WHERE email = ?");
-        if (!$prq->execute([$email])) {
-            throw new ErrorException("Failed to delete user with email = " . $email . ".");
+        $prq = $this->pdo->prepare("DELETE FROM users WHERE id = ?");
+        if (!$prq->execute([$id])) {
+            throw new ErrorException("Query \"" . $prq->queryString . "\" failed");
         }
 
         return $user;

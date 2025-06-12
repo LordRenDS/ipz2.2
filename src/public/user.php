@@ -16,7 +16,7 @@ try {
     if (array_key_exists("action", $_POST)) {
         if ($_POST["action"] === "update") {
             $updateUser = Utils::createUserFromPost();
-            $user = $userService->updateUserByEmail($user->email, $updateUser);
+            $user = $userService->updateUserById($user->id, $updateUser);
             $_SESSION["user"] = $user;
         }
     }
@@ -58,6 +58,7 @@ try {
                     <input type="text" name="surname" id="surname" value="<?php echo $user->surname ?? "" ?>">
                 </div>
                 <input type="text" name="action" id="action" value="update" hidden>
+                <input type="hidden" name="id" value="<?php echo $user->id ?>">
                 <input type="submit" value="Update">
             </fieldset>
         </form>

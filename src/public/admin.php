@@ -18,16 +18,16 @@ try {
     if (array_key_exists("action", $_POST)) {
         $incomingUser = Utils::createUserFromPost();
         if ($_POST["action"] === "update") {
-            $user = $userService->updateUserByEmail($user->email, $incomingUser);
-            $_SESSION["user"] = $user;
+            $updatedUser = $userService->updateUserById($user->id, $incomingUser);
+            $_SESSION["user"] = $updatedUser;
         } elseif ($_POST["action"] === "create_user") {
             $userService->createUser($incomingUser);
             $users = $userService->getUsers();
         } elseif ($_POST["action"] === "update_user") {
-            $userService->updateUserBy("id", $incomingUser->id, $incomingUser);
+            $userService->updateUserById($incomingUser->id, $incomingUser);
             $users = $userService->getUsers();
         } elseif ($_POST["action"] === "delete_user") {
-            $userService->deleteUserByEmail($incomingUser->email);
+            $userService->deleteUserById($incomingUser->id);
             $users = $userService->getUsers();
         }
     }
@@ -69,6 +69,7 @@ try {
                     <input type="text" name="surname" id="surname" value="<?php echo $user->surname ?? "" ?>">
                 </div>
                 <input type="text" name="action" id="action" value="update" hidden>
+                <input type="hidden" name="id" value="<?php echo $user->id ?>">
                 <input type="submit" value="Submit">
             </fieldset>
         </form>
@@ -131,6 +132,7 @@ try {
             </form>
         </div>
     <?php endforeach ?>
+
     <?php if ($exception): ?>
         <p><?php echo $exceptionMessege ?></p>
     <?php endif ?>
